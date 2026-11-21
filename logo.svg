@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- Bobine : une bobine de film qui vous regarde de travers. Fond jaune acide, tout le reste en noir. -->
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="#E6FF3A"/>
+  <!-- la pellicule qui s'échappe et ondule comme une forme d'onde -->
+  <path d="M 655 645 C 760 700, 700 830, 800 815 C 870 805, 845 730, 895 735"
+        fill="none" stroke="#111" stroke-width="38" stroke-linecap="round"/>
+  <!-- la bobine -->
+  <circle cx="470" cy="460" r="270" fill="#111"/>
+  <!-- deux trous de bobine qui sont des yeux, pas de la même taille -->
+  <circle cx="385" cy="410" r="74" fill="#E6FF3A"/>
+  <circle cx="358" cy="388" r="34" fill="#111"/>
+  <circle cx="575" cy="392" r="44" fill="#E6FF3A"/>
+  <circle cx="559" cy="378" r="20" fill="#111"/>
+  <!-- la bouche est un bouton lecture -->
+  <path d="M 440 520 L 440 622 L 528 571 Z" fill="#E6FF3A" stroke="#E6FF3A" stroke-width="16" stroke-linejoin="round"/>
+</svg>
