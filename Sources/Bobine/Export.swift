@@ -3,12 +3,14 @@ import SwiftUI
 
 /// Formats d'export proposés (ffmpeg, encodage matériel Apple : rapide).
 enum FormatExport: String, CaseIterable, Identifiable {
-    case mp4, mp4_1080, mp4_720, hevc, m4a, mp3
+    case mp4, mp4_hq, prores, mp4_1080, mp4_720, hevc, m4a, mp3
     var id: String { rawValue }
 
     var titre: String {
         switch self {
         case .mp4: return "MP4 compatible (QuickTime, iPhone, web)"
+        case .mp4_hq: return "MP4 haute qualité (pour retravailler ou publier)"
+        case .prores: return "ProRes (qualité maximale, très lourd)"
         case .mp4_1080: return "MP4 1080p"
         case .mp4_720: return "MP4 720p (léger)"
         case .hevc: return "HEVC (même qualité, plus léger)"
@@ -20,12 +22,15 @@ enum FormatExport: String, CaseIterable, Identifiable {
         switch self {
         case .m4a: return "m4a"
         case .mp3: return "mp3"
+        case .prores: return "mov"
         default: return "mp4"
         }
     }
     var suffixe: String {
         switch self {
         case .mp4: return ""
+        case .mp4_hq: return " HQ"
+        case .prores: return " ProRes"
         case .mp4_1080: return " 1080p"
         case .mp4_720: return " 720p"
         case .hevc: return " HEVC"
@@ -125,6 +130,15 @@ enum Export {
             case .mp3: return ["-c:a", "libmp3lame", "-q:a", "2"]
             case .m4a: return audioAAC
             case .hevc: return (video ? hevc : []) + (audio ? audioAAC : [])
+            // Haute qualité : débit fixe généreux (≈ 20 Mb/s en 1080p, 50 en 4K) au lieu de la qualité « partage ».
+            case .mp4_hq:
+                let debit = infos.hauteur >= 2000 ? "50M" : "20M"
+                return (video ? ["-c:v", "h264_videotoolbox", "-b:v", debit, "-pix_fmt", "yuv420p"] : [])
+                    + (audio ? ["-c:a", "aac", "-b:a", "256k"] : [])
+            // ProRes 422 et son non compressé : pour un logiciel de montage.
+            case .prores:
+                return (video ? ["-c:v", "prores_ks", "-profile:v", "2", "-pix_fmt", "yuv422p10le"] : [])
+                    + (audio ? ["-c:a", "pcm_s16le"] : [])
             default: return (video ? h264 : []) + (audio ? audioAAC : [])
             }
         }()

@@ -20,7 +20,7 @@ enum Qualite: String, CaseIterable, Identifiable {
         switch self {
         case .leger: "720p, HEVC · ≈ 25 Mo par minute"
         case .moyen: "1080p, H.264 (compatible partout) · ≈ 100 Mo par minute"
-        case .max: "pleine définition de la caméra, ProRes · 1 Go par minute et plus"
+        case .max: "pleine définition de la caméra (4K si elle le peut), ProRes · ≈ 1 Go par minute en 1080p, ≈ 4 Go en 4K"
         }
     }
     var detailAudio: String {
@@ -159,9 +159,20 @@ final class Enregistreur: NSObject, ObservableObject {
             session.outputs.forEach { session.removeOutput($0) }
             if mode == .camera, let cam, let e = try? AVCaptureDeviceInput(device: cam), session.canAddInput(e) {
                 session.addInput(e)
-                // Qualité demandée, sinon la meilleure en dessous que la caméra accepte.
-                let presets: [AVCaptureSession.Preset] = [q.preset, .hd1920x1080, .high, .hd1280x720]
-                if let p = presets.first(where: { session.canSetSessionPreset($0) }) { session.sessionPreset = p }
+                if q == .max, let f = Enregistreur.meilleurFormat(cam), (try? cam.lockForConfiguration()) != nil {
+                    // Maximum : on choisit directement le plus grand format 16:9 de la caméra (4K pour une
+                    // Insta360 Link 2), à 30 i/s ; les « presets » génériques ne vont pas au-delà du 1080p.
+                    cam.activeFormat = f
+                    let trente = CMTime(value: 1, timescale: 30)
+                    if f.videoSupportedFrameRateRanges.contains(where: { $0.minFrameDuration <= trente && trente <= $0.maxFrameDuration }) {
+                        cam.activeVideoMinFrameDuration = trente; cam.activeVideoMaxFrameDuration = trente
+                    }
+                    cam.unlockForConfiguration()
+                } else {
+                    // Qualité demandée, sinon la meilleure en dessous que la caméra accepte.
+                    let presets: [AVCaptureSession.Preset] = [q.preset, .hd1920x1080, .high, .hd1280x720]
+                    if let p = presets.first(where: { session.canSetSessionPreset($0) }) { session.sessionPreset = p }
+                }
             }
             if let mic, let e = try? AVCaptureDeviceInput(device: mic), session.canAddInput(e) {
                 session.addInput(e)
@@ -244,6 +255,18 @@ final class Enregistreur: NSObject, ObservableObject {
         fileSession.sync {}   // attend une éventuelle reconfiguration en cours
         if session.isRunning { session.stopRunning() }
         MoteurVLC.trace("enregistrement : caméra et micro arrêtés")
+    }
+
+    /// Plus grand format 16:9 de la caméra (de préférence en 4:2:0, le plus léger à traiter).
+    nonisolated static func meilleurFormat(_ cam: AVCaptureDevice) -> AVCaptureDevice.Format? {
+        let seize = cam.formats.filter { f in
+            let d = CMVideoFormatDescriptionGetDimensions(f.formatDescription)
+            return d.height > 0 && abs(Double(d.width) / Double(d.height) - 16.0 / 9) < 0.02
+        }
+        func aire(_ f: AVCaptureDevice.Format) -> Int32 { let d = CMVideoFormatDescriptionGetDimensions(f.formatDescription); return d.width * d.height }
+        let maxi = seize.map(aire).max() ?? 0
+        let candidats = seize.filter { aire($0) == maxi }
+        return candidats.first { CMFormatDescriptionGetMediaSubType($0.formatDescription) == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange } ?? candidats.first
     }
 
     /// L'enregistreur de la fenêtre ouverte (une seule fenêtre d'enregistrement à la fois).

@@ -597,7 +597,9 @@ final class Controleur: ObservableObject {
         let m = montage
         Task {
             let infos = await Task.detached { InfosMedia.lire(source) }.value
-            let format: FormatExport = infos.codecVideo != nil ? .mp4
+            // Original lourd (ProRes, enregistrement en qualité Maximum…) : on garde une haute qualité.
+            let lourd = infos.codecVideo == "prores" || infos.codecVideo == "dnxhd"
+            let format: FormatExport = infos.codecVideo != nil ? (lourd ? .mp4_hq : .mp4)
                 : (source.pathExtension.lowercased() == "mp3" ? .mp3 : .m4a)
             let dest = Export.nomLibre(source: source, ext: format.extensionFichier)
             let t = TacheExport(source: source, dest: dest, format: format, garder: garder, montage: m.aTransfo ? m : nil)

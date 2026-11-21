@@ -23,7 +23,7 @@ L'original n'est jamais modifié : chaque export fabrique un nouveau fichier.
   l'aperçu et l'export utilisent exactement le même calcul.
 - **Normaliser le son** à l'export (−16 LUFS, la norme des plateformes).
 - **Appliquer** : rend le montage définitif dans un nouveau fichier, rouvert aussitôt.
-- **Export** via ffmpeg et l'encodage matériel d'Apple : MP4 compatible, 1080p, 720p, HEVC, M4A, MP3.
+- **Export** via ffmpeg et l'encodage matériel d'Apple : MP4 compatible, MP4 haute qualité, ProRes, 1080p, 720p, HEVC, M4A, MP3.
 - **Enregistrement** caméra et micro comme QuickTime : qualité Léger / Moyen / Maximum (chaque choix dit à quoi
   il sert : mail, réseaux sociaux, montage…), effets de macOS (mode Studio, Portrait, Isolation de la voix),
   filtres de couleur visibles en direct.
