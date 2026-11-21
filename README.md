@@ -91,6 +91,12 @@ ffmpeg déjà installés sur le Mac.
 
 Diagnostic : `~/Library/Logs/Bobine.log`. Tests automatiques : voir `AGENTS.md`.
 
+## Fabriquée avec l'IA
+
+Bobine a été conçue par Tristan Mendès France et entièrement codée avec **Claude Code** (Anthropic),
+un assistant de programmation par IA. Je ne suis pas développeur : le code a été testé à l'usage,
+pas relu ligne à ligne par un professionnel.
+
 ## Licence
 
 [MIT](LICENSE) — © 2026 Tristan Mendès France. VLC et ffmpeg restent sous leurs propres licences et ne sont pas
@@ -111,5 +117,9 @@ fournis avec Bobine.
 
 The interface is in French. Requirements: macOS 15+, Xcode command line tools, `brew install ffmpeg`,
 VLC in `/Applications`. Build and install with `bash construire-app.sh` (installs `~/Applications/Bobine.app`).
+
+**Built with AI.** Bobine was designed by Tristan Mendès France and entirely coded with **Claude Code**
+(Anthropic), an AI programming assistant. I am not a developer: the code has been tested through use,
+not reviewed line by line by a professional.
 
 License: MIT.
